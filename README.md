@@ -1,81 +1,46 @@
-# Time Capsule Hosts Lock Tool
+Time Capsule Hosts Lock Tool
 
-**Time Capsule Hosts Lock Tool** is a Python 3 terminal utility designed for Ubuntu Linux. It securely locks the system's `/etc/hosts` file, preventing modifications—even by root users—for a specified duration, effectively creating a time capsule for your hosts configuration.
+Time Capsule Hosts Lock Tool is a command-line Python utility for Ubuntu Linux that locks your system’s /etc/hosts file by setting its immutable flag. The tool prevents any modifications until the specified duration expires or you manually unlock it using a secure password. An auto-unlock is also scheduled via the at command.
 
-This tool leverages the Linux immutable file attribute (`chattr +i`) and schedules automatic unlocking with the built-in `at` command. A secure password mechanism allows manual override if necessary.
+How to Run the App
+1. Locking the Hosts File
+From your project's root directory (the directory that contains the time_capsule_hosts_lock_tool folder), run the following command as root:
 
----
+sudo python3 -m time_capsule_hosts_lock_tool.cli --lock
+What Happens When You Run This Command:
+Prompt for Password:
+You’ll be asked to enter and confirm a password. This password will be required if you need to manually unlock the hosts file later.
 
-## 🚀 Key Features
+Prompt for Lock Duration:
+Next, you’ll enter the duration for which you want to lock /etc/hosts (for example, 2h for two hours).
 
-- **Immutable Locking**: Locks `/etc/hosts` against changes, deletion, or editing, even by users with root privileges.
-- **Time Capsule Lock**: Specify a precise lock duration; the hosts file will auto-unlock at the expiration time.
-- **Secure Password Protection**: Password-based override for immediate manual unlocking.
-- **Auto-Unlock Scheduling**: Uses Linux's `at` scheduler to automatically unlock when the time capsule expires.
+Locking Process:
+The app sets the immutable flag on /etc/hosts using chattr +i and schedules an auto-unlock with the at command.
 
----
+2. Note on Auto-Unlock
+Important:
+The auto-unlock scheduler in time_capsule_hosts_lock_tool/scheduler.py originally referenced an old package name. To ensure auto-unlock works correctly, open time_capsule_hosts_lock_tool/scheduler.py and update the line:
 
-## ⚙️ Installation
+command = "python3 -m hosts_lock_tool.cli --auto-unlock"
+to:
 
-Ensure you have Python 3 installed and the necessary system utilities (`chattr`, `at`). On Ubuntu, these utilities typically come pre-installed; otherwise, install with:
+command = "python3 -m time_capsule_hosts_lock_tool.cli --auto-unlock"
+3. Unlocking the Hosts File
+To manually unlock /etc/hosts, run:
 
-```bash
-sudo apt install e2fsprogs at
+sudo python3 -m time_capsule_hosts_lock_tool.cli --unlock
+When prompted, enter the password you set during the lock process.
 
-# How to Run the Application
+Summary
+Lock the Hosts File:
 
-The tool provides an easy command-line interface. Follow these instructions:
+sudo python3 -m time_capsule_hosts_lock_tool.cli --lock
 
-## Locking `/etc/hosts`
+(Optional) Update Auto-Unlock Command:
+Edit time_capsule_hosts_lock_tool/scheduler.py to use:
 
-To lock the hosts file, run the following command and follow the interactive prompts:
+command = "python3 -m time_capsule_hosts_lock_tool.cli --auto-unlock"
+Unlock the Hosts File:
 
-sudo hosts-lock --lock
-
-markdown
-Copy
-
-You'll be asked to:
-- Set and confirm a secure password (required for manual unlocking).
-- Specify the lock duration (e.g., `2h` for 2 hours, `30m` for 30 minutes, `1d` for one day).
-
-**Example:**
-
-Enter lock password: Confirm lock password: Enter lock duration (e.g., 2h, 120m, 1d): 2h
-
-perl
-Copy
-
-The hosts file will then become immutable for the specified duration.
-
-## Manual Unlocking (Password Override)
-
-If you need immediate access to edit `/etc/hosts` before the scheduled unlock time, use:
-
-sudo hosts-lock --unlock
-
-vbnet
-Copy
-
-You'll be prompted for the password set earlier.
-
-## Checking Lock Status
-
-To check if the `/etc/hosts` file is currently locked, run:
-
-sudo hosts-lock --status
-
-pgsql
-Copy
-
-The tool will inform you of the current lock state and unlock time if applicable.
-
----
-
-🗒️ **License**
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-⚠️ **Caution**
-
-This utility is designed for convenience and deterrence, not as absolute security. Users with physical access or extensive system knowledge could potentially bypass the lock.
+sudo python3 -m time_capsule_hosts_lock_tool.cli --unlock
+This README outlines the steps to run and manage the locking mechanism on /etc/hosts from your project's root directory. If you encounter any issues, please check that your import paths and scheduler command are correctly configured as described above.

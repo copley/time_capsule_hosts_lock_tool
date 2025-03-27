@@ -5,7 +5,7 @@ import os
 import datetime
 from getpass import getpass
 
-from hosts_lock_tool import lock_control, password_storage, scheduler, config, utils
+from . import lock_control, password_storage, scheduler, config, utils
 
 def check_root():
     if os.geteuid() != 0:
